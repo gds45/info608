@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Sorting Exercise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 14px;
+            margin-top: -5px;
+            margin-bottom: -5px;
+            color: #666;
+        }
+        p.instructions, ul.instructions-list {
+            max-width: 800px;
+            text-align: left;
+            line-height: 1.6;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        ul.instructions-list {
+            padding-left: 20px;
+            list-style-type: disc;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        #cards, #categories {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .card, .category {
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #f8f9fa;
+            min-width: 100px;
+            text-align: center;
+            user-select: none;
+        }
+        .card {
+            cursor: grab;
+            background-color: #e2e2e2;
+            position: relative;
+            z-index: 1;
+            width: 100px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card.dragging {
+            z-index: 1000;
+        }
+        .category {
+            min-height: 100px;
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .category h3 {
+            margin-top: 0;
+        }
+        .category.drag-hover {
+            background-color: #e0ffe0;
+            border-color: #4CAF50;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+        .add-category {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .add-category input {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+        }
+        .add-category button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .screenshot-btn {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #categories-title {
+            font-size: 18px;
+            font-weight: bold;
+            padding-top: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <h1>Card Sorting Exercise</h1>
+    <h2>By Greg St. Germain - INFO 608</h2>
+
+    <p><strong>Objective</strong></p>
+    <p>Sort each element as it relates to a music listening platform like Spotify or<br>
+    Apple Music into categories you feel are most logical or meaningful.</p>
+
+    <p><strong>Instructions</strong></p>
+    <ul class="instructions-list">
+        <li><strong>Step 1:</strong> Review the provided cards - each representing features and controls typically found on music platforms.</li>
+        <li><strong>Step 2:</strong> Create categories that you think best represent logical groupings for these features.<br>
+            The choice is yours - there is no limit to the number of categories, and there are no wrong categories.</li>
+        <li><strong>Step 3:</strong> Drag and drop each card into the category that makes the most sense to you.<br>
+            If a feature doesn’t seem to fit any of your categories, feel free to place it in the “I Don’t Know” bin.</li>
+        <li><strong>Step 4:</strong> Take a screenshot of your final layout and upload it to Blackboard. In Blackboard, include a quick 1-2 sentence description of what each category means to you.</li>
+    </ul>
+
+    <!-- Cards Section -->
+    <div id="cards">
+        <div class="card" draggable="true" id="card1">Search Bar</div>
+        <div class="card" draggable="true" id="card2">Playlist Creation</div>
+        <div class="card" draggable="true" id="card3">Filter Options</div>
+        <div class="card" draggable="true" id="card4">Player Controls</div>
+        <div class="card" draggable="true" id="card5">Share Song / Playlist Options</div>
+        <div class="card" draggable="true" id="card6">Volume Control</div>
+        <div class="card" draggable="true" id="card7">Favorite or Like Button</div>
+        <div class="card" draggable="true" id="card8">Queue Management</div>
+        <div class="card" draggable="true" id="card9">Account Settings</div>
+        <div class="card" draggable="true" id="card10">Show Lyrics</div>
+    </div>
+
+    <!-- Categories Section -->
+    <h2 id="categories-title">Categories</h2>
+    <div id="categories">
+        <!-- Default "I Don't Know" category -->
+        <div class="category" id="unknown-category" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)">
+            <h3>I Don't Know</h3>
+        </div>
+    </div>
+
+    <!-- Add Category Section -->
+    <div class="add-category">
+        <input type="text" id="newCategoryInput" placeholder="New category name">
+        <button onclick="addCategory()">Add Category</button>
+    </div>
+
+    <!-- Screenshot Button -->
+    <button class="screenshot-btn" onclick="takeScreenshot()">Download Screenshot</button>
+
+    <script>
+        const cards = document.querySelectorAll('.card');
+        const categories = document.getElementById('categories');
+        const mainCardSection = document.getElementById('cards');
+
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+            card.addEventListener('touchstart', touchStart, { passive: false });
+        });
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function dragEnter(event) {
+            event.target.classList.add('drag-hover');
+        }
+
+        function dragLeave(event) {
+            event.target.classList.remove('drag-hover');
+        }
+
+        function dragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.id);
+            event.target.classList.add('dragging');
+        }
+
+        function dragEnd(event) {
+            event.target.classList.remove('dragging');
+            document.querySelectorAll('.category').forEach(category => category.classList.remove('drag-hover'));
+        }
+
+        function touchStart(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const card = event.target;
+            card.classList.add('dragging');
+            card.style.position = 'absolute';
+            card.style.zIndex = '1000';
+            card.style.left = `${touch.pageX - card.offsetWidth / 2}px`;
+            card.style.top = `${touch.pageY - card.offsetHeight / 2}px`;
+            card.addEventListener('touchmove', touchMove, { passive: false });
+            card.addEventListener('touchend', touchEnd);
+        }
+
+        function touchMove(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const card = document.querySelector('.dragging');
+            if (card) {
+                card.style.left = `${touch.pageX - card.offsetWidth / 2}px`;
+                card.style.top = `${touch.pageY - card.offsetHeight / 2}px`;
+            }
+        }
+
+        function touchEnd(event) {
+            const touch = event.changedTouches[0];
+            const card = document.querySelector('.dragging');
+            if (card) {
+                card.classList.remove('dragging');
+                card.style.position = 'relative';
+                card.style.zIndex = '1';
+                const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (dropTarget && dropTarget.classList.contains('category')) {
+                    dropTarget.appendChild(card);
+                } else {
+                    mainCardSection.appendChild(card);
+                }
+                card.style.left = '';
+                card.style.top = '';
+            }
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const cardId = event.dataTransfer.getData('text');
+            const card = document.getElementById(cardId);
+            if (event.target.classList.contains('category')) {
+                event.target.appendChild(card);
+            } else if (event.target.parentElement.classList.contains('category')) {
+                event.target.parentElement.appendChild(card);
+            }
+        }
+
+        function addCategory() {
+            const categoryInput = document.getElementById('newCategoryInput');
+            const categoryName = categoryInput.value.trim();
+            if (categoryName) {
+                const newCategory = document.createElement('div');
+                newCategory.classList.add('category');
+                newCategory.setAttribute('ondrop', 'drop(event)');
+                newCategory.setAttribute('ondragover', 'allowDrop(event)');
+                newCategory.setAttribute('ondragenter', 'dragEnter(event)');
+                newCategory.setAttribute('ondragleave', 'dragLeave(event)');
+                newCategory.innerHTML = `
+                    <h3>${categoryName}</h3>
+                    <button class="delete-btn" onclick="deleteCategory(this)">X</button>
+                `;
+                categories.appendChild(newCategory);
+                categoryInput.value = '';
+            }
+        }
+
+        function deleteCategory(button) {
+            const category = button.parentElement;
+            const categoryCards = category.querySelectorAll('.card');
+            categoryCards.forEach(card => mainCardSection.appendChild(card));
+            category.remove();
+        }
+
+        function takeScreenshot() {
+            html2canvas(document.body).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL("image/png");
+                link.download = 'card_sorting_screenshot.png';
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
